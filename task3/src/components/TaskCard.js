@@ -61,9 +61,9 @@ export default function TaskCard({ task, onStatusChange, onDelete }) {
         </span>
       </div>
 
-      <div style={s.formula}>
+      {/* <div style={s.formula}>
         Impact({task.impact})×0.4 + Urgency×0.4 + EasyFactor({11 - task.effort})×0.2
-      </div>
+      </div> */}
 
       <div style={s.row}>
         <span style={{ ...s.deadline, color: daysLeft < 0 ? '#f87171' : daysLeft <= 2 ? '#fbbf24' : '#6b7280' }}>

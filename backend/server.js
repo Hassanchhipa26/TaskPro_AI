@@ -71,3 +71,6 @@ cron.schedule('0 * * * *', async () => {
     console.error('Cron error:', err);
   }
 });
+
+console.log('Server setup complete');
+console.log("JWT:", process.env.JWT_SECRET);

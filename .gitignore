@@ -1,0 +1,4 @@
+backend/node_modules
+backend/.env
+task3/node_modules
+task3/build

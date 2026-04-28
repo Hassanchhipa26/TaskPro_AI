@@ -38,14 +38,14 @@ export default function Home() {
 
   const fetchTasks = async () => {
     try {
-      const { data } = await API.get('http://localhost:5000/api/tasks/my', { headers });
+      const { data } = await API.get('/api/tasks/my', { headers });
       setTasks(data);
     } catch (e) { console.error(e); }
   };
 
   const fetchAlerts = async () => {
     try {
-      const { data } = await API.get('http://localhost:5000/api/tasks/alerts', { headers });
+      const { data } = await API.get('/api/tasks/alerts', { headers });
       setAlerts(data);
     } catch (e) { console.error(e); }
   };
@@ -57,7 +57,7 @@ useEffect(() => { fetchTasks(); fetchAlerts(); }, []);
     if (!form.title || !form.deadline) return;
     setLoading(true);
     try {
-      await API.post('http://localhost:5000/api/tasks', { ...form, assignedTo: user.id }, { headers });
+      await API.post('/api/tasks', { ...form, assignedTo: user.id }, { headers });
       setShowModal(false);
       setForm({ title: '', description: '', deadline: '', effort: 5, impact: 5 });
       fetchTasks();
@@ -66,17 +66,17 @@ useEffect(() => { fetchTasks(); fetchAlerts(); }, []);
   };
 
   const updateStatus = async (id, status) => {
-    await API.put(`http://localhost:5000/api/tasks/${id}`, { status }, { headers });
+    await API.put(`/api/tasks/${id}`, { status }, { headers });
     fetchTasks();
   };
 
   const deleteTask = async (id) => {
-    await API.delete(`http://localhost:5000/api/tasks/${id}`, { headers });
+    await API.delete(`/api/tasks/${id}`, { headers });
     fetchTasks();
   };
 
   const dismissAlert = async (id) => {
-    await API.put(`http://localhost:5000/api/tasks/alerts/${id}/read`, {}, { headers });
+    await API.put(`/api/tasks/alerts/${id}/read`, {}, { headers });
     setAlerts(alerts.filter(a => a._id !== id));
   };
 

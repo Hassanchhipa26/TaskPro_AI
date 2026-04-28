@@ -34,13 +34,13 @@ export default function Manager() {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchDashboard = async () => {
-    const { data: d } = await API.get('http://localhost:5000/api/dashboard', { headers });
+    const { data: d } = await API.get('/api/dashboard', { headers });
     setData(d);
     if (d.workload) setUsers(d.workload.map(w => w.user));
   };
 
   const fetchAllTasks = async () => {
-    const { data: t } = await API.get('http://localhost:5000/api/tasks/all', { headers });
+    const { data: t } = await API.get('/api/tasks/all', { headers });
     setAllTasks(t);
   };
 
@@ -49,7 +49,7 @@ useEffect(() => { fetchDashboard(); fetchAllTasks(); }, []);
 
   const assignTask = async () => {
     if (!form.title || !form.deadline || !form.assignedTo) return;
-    await API.post('http://localhost:5000/api/tasks', form, { headers });
+    await API.post('/api/tasks', form, { headers });
     setShowModal(false);
     setForm({ title: '', description: '', deadline: '', effort: 5, impact: 5, assignedTo: '' });
     fetchDashboard(); fetchAllTasks();

@@ -31,6 +31,9 @@ export default function Manager() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', deadline: '', effort: 5, impact: 5, assignedTo: '' });
   const [loading, setLoading] = useState(false);
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+  const [searchError, setSearchError] = useState('');
 
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -42,15 +45,14 @@ export default function Manager() {
     } catch (e) { console.error(e); }
   };
 
-  const fetchAllMembers = async () => {
-    try {
-      const { data } = await API.get('/api/auth/members', { headers });
-      setUsers(data);
-    } catch (e) { console.error(e); }
-  };
-
+  const fetchMyTeam = async () => {
+  try {
+    const { data } = await API.get('/api/team', { headers });
+    setUsers(data.members || []);
+  } catch (e) { console.error(e); }
+};
   // eslint-disable-next-line
-  useEffect(() => { fetchDashboard(); fetchAllMembers(); }, []);
+  useEffect(() => { fetchDashboard(); fetchMyTeam(); }, []);
 
   const assignTask = async () => {
     if (!form.title || !form.deadline || !form.assignedTo) return;
@@ -63,6 +65,40 @@ export default function Manager() {
     } catch (e) { console.error(e); }
     setLoading(false);
   };
+
+  const searchMember = async () => {
+  setSearchError('');
+  setSearchResult(null);
+  if (!searchEmail) return;
+  try {
+    const { data } = await API.get(`/api/team/search?email=${searchEmail}`, { headers });
+    setSearchResult(data);
+  } catch (e) {
+    setSearchError('Member not found — make sure they registered as Team Member');
+  }
+};
+
+const addToTeam = async (memberId) => {
+  try {
+    const { data } = await API.post('/api/team/add', { memberId }, { headers });
+    setUsers(data.members || []);
+    setSearchResult(null);
+    setSearchEmail('');
+    setSearchError('');
+    fetchDashboard();
+  } catch (e) {
+    setSearchError(e.response?.data?.message || 'Error adding member');
+  }
+};
+
+const removeFromTeam = async (memberId) => {
+  try {
+    await API.delete(`/api/team/remove/${memberId}`, { headers });
+    const { data } = await API.get('/api/team', { headers });
+    setUsers(data.members || []);
+    fetchDashboard();
+  } catch (e) { console.error(e); }
+};
 
   const exportCSV = () => {
     const rows = [['Title', 'Assigned To', 'Status', 'Priority Score', 'Deadline', 'Effort', 'Impact']];
@@ -113,6 +149,62 @@ export default function Manager() {
           <div style={s.statLabel}>Team Members</div>
         </div>
       </div>
+
+      {/* My Team Section */}
+<div style={{ background: '#1e1e2e', borderRadius: 12, padding: 20, marginBottom: 28, border: '1px solid #7c3aed40' }}>
+  <div style={s.section}>My Team — {users.length} Members</div>
+
+  {/* Search bar */}
+  <div style={{ display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+    <input
+      style={{ ...s.inp, marginBottom: 0, flex: 1 }}
+      placeholder="Search team member by email..."
+      value={searchEmail}
+      onChange={e => setSearchEmail(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && searchMember()}
+    />
+    <button style={s.btn} onClick={searchMember}>Search</button>
+  </div>
+
+  {searchError && (
+    <div style={{ color: '#f87171', fontSize: 13, marginBottom: 10 }}>
+      {searchError}
+    </div>
+  )}
+
+  {/* Search Result */}
+  {searchResult && (
+    <div style={{ background: '#111827', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div>
+        <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600 }}>{searchResult.name}</span>
+        <span style={{ color: '#6b7280', fontSize: 12, marginLeft: 10 }}>{searchResult.email}</span>
+      </div>
+      <button style={{ ...s.btn, padding: '6px 14px', fontSize: 13 }}
+        onClick={() => addToTeam(searchResult._id)}>
+        + Add to Team
+      </button>
+    </div>
+  )}
+
+  {/* Team Members List */}
+  {users.length === 0
+    ? <div style={{ color: '#6b7280', fontSize: 13, padding: '8px 0' }}>
+        No members yet — search by email to add members
+      </div>
+    : users.map(u => (
+      <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #1f2937' }}>
+        <div>
+          <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600 }}>{u.name}</span>
+          <span style={{ color: '#6b7280', fontSize: 12, marginLeft: 10 }}>{u.email}</span>
+        </div>
+        <button onClick={() => removeFromTeam(u._id)}
+          style={{ background: 'transparent', border: '1px solid #374151', borderRadius: 6, color: '#f87171', cursor: 'pointer', padding: '4px 10px', fontSize: 12 }}>
+          Remove
+        </button>
+      </div>
+    ))
+  }
+</div>
 
       <div style={s.section}>Team Workload Distribution</div>
       <div style={{ overflowX: 'auto', width: '100%' }}>

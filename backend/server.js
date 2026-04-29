@@ -9,10 +9,7 @@ require('dotenv').config();
 
 const app = express();
 
-// Security headers
 app.use(helmet());
-
-// Compress responses — server load kam hoga
 app.use(compression());
 
 // CORS
@@ -39,7 +36,7 @@ app.use('/api/auth/', authLimiter);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/dashboard', require('./routes/dashboard'));
-
+app.use('/api/team', require('./routes/team'));
 // Health check
 app.get('/', (req, res) => res.json({ message: 'TaskPrio API running' }));
 

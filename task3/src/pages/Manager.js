@@ -91,7 +91,7 @@ useEffect(() => { fetchDashboard(); fetchAllTasks(); }, []);
       </div>
 
       {/* Summary Cards */}
-      <div style={s.summaryRow}>
+      <div style={s.summaryRow} className="summary-row">
         <div style={{ ...s.statCard, borderColor: '#7c3aed40' }}>
           <div style={{ ...s.statNum, color: '#a78bfa' }}>{data.summary?.total || 0}</div>
           <div style={s.statLabel}>Total Tasks</div>
@@ -112,7 +112,7 @@ useEffect(() => { fetchDashboard(); fetchAllTasks(); }, []);
 
       {/* Workload Table */}
       <div style={s.section}>Team Workload Distribution</div>
-      <table style={s.table}>
+      <table style={s.table} className="dashboard-table">
         <thead>
           <tr>
             <th style={s.th}>Member</th>

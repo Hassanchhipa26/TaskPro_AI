@@ -83,12 +83,12 @@ useEffect(() => { fetchTasks(); fetchAlerts(); }, []);
   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
 
   return (
-    <div style={s.page} className="page-wrap>
+    <div style={s.page}>
       {alerts.map(a => (
         <AlertBanner key={a._id} alert={a} onDismiss={() => dismissAlert(a._id)} />
       ))}
 
-      <div style={s.header} className="header-row">
+      <div style={s.header}>
         <div>
           <div style={s.title}>My Tasks</div>
           <div style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>
@@ -98,7 +98,7 @@ useEffect(() => { fetchTasks(); fetchAlerts(); }, []);
         <button style={s.addBtn} onClick={() => setShowModal(true)}>+ New Task</button>
       </div>
 
-      <div style={s.tabs} className="tabs-row">
+      <div style={s.tabs}>
         {['all', 'todo', 'in_progress'].map(f => (
           <button key={f} style={{ ...s.tab, background: filter === f ? '#7c3aed' : '#1e1e2e', color: filter === f ? '#fff' : '#9ca3af', border: filter === f ? 'none' : '1px solid #374151' }}
             onClick={() => setFilter(f)}>
@@ -109,7 +109,7 @@ useEffect(() => { fetchTasks(); fetchAlerts(); }, []);
 
       {filtered.length === 0
         ? <div style={s.empty}>No tasks here. Create one!</div>
-        : <div style={s.grid} className="task-grid">
+        : <div style={s.grid}>
             {filtered.map(task => (
               <TaskCard key={task._id} task={task} onStatusChange={updateStatus} onDelete={deleteTask} />
             ))}

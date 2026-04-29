@@ -73,7 +73,7 @@ export default function Login() {
 
   return (
     <div style={s.wrap}>
-      <div style={s.box} className="login-box">
+      <div style={s.box}>
         <div style={s.title}>⚡ TaskPrio</div>
         {isRegister && (
           <input

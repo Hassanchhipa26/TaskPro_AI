@@ -3,7 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 
 const styles = {
-  nav: { background: '#1e1e2e', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 },
+  nav: { 
+  background: '#1e1e2e', 
+  padding: '0 16px', 
+  display: 'flex', 
+  alignItems: 'center', 
+  justifyContent: 'space-between', 
+  height: 'auto',
+  minHeight: 56,
+  flexWrap: 'wrap',
+  gap: 8,
+  paddingTop: 8,
+  paddingBottom: 8
+},
   brand: { color: '#a78bfa', fontWeight: 700, fontSize: 20, textDecoration: 'none', letterSpacing: 1 },
   links: { display: 'flex', gap: 20, alignItems: 'center' },
   link: { color: '#c4b5fd', textDecoration: 'none', fontSize: 14 },

@@ -4,16 +4,20 @@ import API from '../api';
 import { AuthContext } from '../App';
 
 const s = {
-  page: { minHeight: '100vh', background: '#0f0f1a', padding: '24px 32px' },
+page: { 
+  minHeight: '100vh', 
+  background: '#0f0f1a', 
+  padding: '24px 16px' 
+},
   title: { color: '#e2e8f0', fontSize: 22, fontWeight: 700, marginBottom: 24 },
-  summaryRow: { display: 'flex', gap: 16, marginBottom: 28, flexWrap: 'wrap' },
+  summaryRow: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 28 },
   statCard: { background: '#1e1e2e', borderRadius: 12, padding: '20px 28px', flex: 1, minWidth: 160, border: '1px solid #374151' },
   statNum: { fontSize: 36, fontWeight: 700 },
   statLabel: { color: '#9ca3af', fontSize: 13, marginTop: 4 },
   section: { color: '#a78bfa', fontSize: 16, fontWeight: 700, marginBottom: 14 },
   table: { width: '100%', borderCollapse: 'collapse', marginBottom: 32 },
-  th: { color: '#6b7280', fontSize: 12, fontWeight: 600, textAlign: 'left', padding: '8px 12px', borderBottom: '1px solid #374151' },
-  td: { color: '#e2e8f0', fontSize: 14, padding: '12px', borderBottom: '1px solid #1f2937' },
+  th: { color: '#6b7280', fontSize: 11, fontWeight: 600, textAlign: 'left', padding: '8px 6px', borderBottom: '1px solid #374151', whiteSpace: 'nowrap' },
+  td: { color: '#e2e8f0', fontSize: 12, padding: '10px 6px', borderBottom: '1px solid #1f2937' },
   badge: { display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
   modal: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   modalBox: { background: '#1e1e2e', borderRadius: 16, padding: 32, width: 440 },
@@ -82,7 +86,7 @@ useEffect(() => { fetchDashboard(); fetchAllTasks(); }, []);
 
   return (
     <div style={s.page}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div style={s.title}>Manager Dashboard</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button style={s.exportBtn} onClick={exportCSV}>Export CSV</button>
@@ -112,32 +116,34 @@ useEffect(() => { fetchDashboard(); fetchAllTasks(); }, []);
 
       {/* Workload Table */}
       <div style={s.section}>Team Workload Distribution</div>
-      <table style={s.table} className="dashboard-table" >
-        <thead>
-          <tr>
-            <th style={s.th}>Member</th>
-            <th style={s.th}>Pending Tasks</th>
-            <th style={s.th}>Completed</th>
-            <th style={s.th}>Avg Priority Score</th>
-            <th style={s.th}>Workload</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.workload?.map(w => (
-            <tr key={w.user._id}>
-              <td style={s.td}>{w.user.name}</td>
-              <td style={s.td}>{w.pending}</td>
-              <td style={{ ...s.td, color: '#34d399' }}>{w.done}</td>
-              <td style={{ ...s.td, color: scoreColor(w.avgScore), fontWeight: 700 }}>{w.avgScore}</td>
-              <td style={s.td}>
-                <div style={{ background: '#111827', borderRadius: 20, height: 8, width: 160, overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(w.pending * 10, 100)}%`, height: '100%', background: w.pending >= 7 ? '#ef4444' : w.pending >= 4 ? '#f97316' : '#22c55e', borderRadius: 20, transition: 'width 0.5s' }} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+<div style={{ overflowX: 'auto', width: '100%' }}>
+  <table style={s.table} className="dashboard-table">
+    <thead>
+      <tr>
+        <th style={s.th}>Member</th>
+        <th style={s.th}>Pending Tasks</th>
+        <th style={s.th}>Completed</th>
+        <th style={s.th}>Avg Priority Score</th>
+        <th style={s.th}>Workload</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.workload?.map(w => (
+        <tr key={w.user._id}>
+          <td style={s.td}>{w.user.name}</td>
+          <td style={s.td}>{w.pending}</td>
+          <td style={{ ...s.td, color: '#34d399' }}>{w.done}</td>
+          <td style={{ ...s.td, color: scoreColor(w.avgScore), fontWeight: 700 }}>{w.avgScore}</td>
+          <td style={s.td}>
+            <div style={{ background: '#111827', borderRadius: 20, height: 8, width: 80, overflow: 'hidden' }}>
+              <div style={{ width: `${Math.min(w.pending * 10, 100)}%`, height: '100%', background: w.pending >= 7 ? '#ef4444' : w.pending >= 4 ? '#f97316' : '#22c55e', borderRadius: 20, transition: 'width 0.5s' }} />
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
       {/* All Tasks Table */}
       <div style={s.section}>All Tasks — Priority Ordered</div>

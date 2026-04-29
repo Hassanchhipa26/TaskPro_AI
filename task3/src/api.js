@@ -12,6 +12,7 @@ API.interceptors.response.use(
       localStorage.clear();
       window.location.href = '/login';
     }
+    // 404 pe crash mat karo — silently handle karo
     return Promise.reject(error);
   }
 );

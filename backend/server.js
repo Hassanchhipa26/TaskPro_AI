@@ -2,75 +2,78 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cron = require('node-cron');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const compression = require('compression');
 require('dotenv').config();
 
 const app = express();
 
-// Middlewares
+// Security headers
+app.use(helmet());
+
+// Compress responses — server load kam hoga
+app.use(compression());
+
+// CORS
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10kb' })); // body size limit
+
+// Rate Limiting — ek IP se zyada requests block
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per 15 min per IP
+  message: { message: 'Too many requests, please try again later' }
+});
+app.use('/api/', limiter);
+
+// Auth ke liye strict limit
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // sirf 10 login attempts per 15 min
+  message: { message: 'Too many login attempts, please try again later' }
+});
+app.use('/api/auth/', authLimiter);
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 
-// Health check route
-app.get('/', (req, res) => {
-  res.json({ message: 'TaskPro API running' });
-});
+// Health check
+app.get('/', (req, res) => res.json({ message: 'TaskPrio API running' }));
 
-// PORT FIX (IMPORTANT FOR DEPLOYMENT)
-const PORT = process.env.PORT || 5000;
-
-// MongoDB Connection + Server Start
+// MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
-
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    app.listen(process.env.PORT || 5000, () =>
+      console.log(`Server running on port ${process.env.PORT || 5000}`)
+    );
   })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-  });
+  .catch(err => console.error('DB Error:', err));
 
-
-// Cron job: check overdue tasks every hour
+// Cron: Check overdue tasks every hour
 cron.schedule('0 * * * *', async () => {
-  try {
-    const Task = require('./models/Task');
-    const Alert = require('./models/Alert');
-
-    const now = new Date();
-
-    const overdue = await Task.find({
-      deadline: { $lt: now },
-      status: { $ne: 'done' }
+  const Task = require('./models/Task');
+  const Alert = require('./models/Alert');
+  const now = new Date();
+  const overdue = await Task.find({ 
+    deadline: { $lt: now }, 
+    status: { $ne: 'done' } 
+  });
+  for (const task of overdue) {
+    const exists = await Alert.findOne({ 
+      task: task._id, 
+      type: 'overdue' 
     });
-
-    for (const task of overdue) {
-      const exists = await Alert.findOne({
-        task: task._id,
-        type: 'overdue'
+    if (!exists) {
+      await Alert.create({ 
+        task: task._id, 
+        user: task.assignedTo, 
+        type: 'overdue', 
+        message: `Task "${task.title}" is overdue!` 
       });
-
-      if (!exists) {
-        await Alert.create({
-          task: task._id,
-          user: task.assignedTo,
-          type: 'overdue',
-          message: `Task "${task.title}" is overdue!`
-        });
-      }
     }
-
-    console.log('Cron job executed');
-  } catch (err) {
-    console.error('Cron error:', err);
   }
 });
-
-console.log('Server setup complete');
-console.log("JWT:", process.env.JWT_SECRET);

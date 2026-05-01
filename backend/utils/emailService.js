@@ -1,21 +1,25 @@
-const nodeMailer = require('nodemailer');
+const nodeMailer = require("nodemailer");
+
 const transporter = nodeMailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.Email_User,
-        pass: process.env.Email_Pass
-    }
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
-// Team mein add hone par 
+// Team mein add hone par
 const sendTeamAddEmail = async (memberEmail, memberName, managerName) => {
-    try{
-
-        await transporter.sendMail({
-            from: `'TaskPrio' <${process.env.Email_User}>`,
-            to: memberEmail,
-            subject: 'You have been added to a new team!',
-            html: `
+  console.log("=== TEAM ADD EMAIL CALLED ===");
+  console.log("To:", memberEmail);
+  console.log("EMAIL_USER:", process.env.EMAIL_USER);
+  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+  try {
+    await transporter.sendMail({
+      from: `"TaskPrio" <${process.env.EMAIL_USER}>`,
+      to: memberEmail,
+      subject: "You have been added to a new team!",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f0f1a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
           <h1 style="color: #a78bfa;">⚡ TaskPrio</h1>
           <h2>Welcome to the team, ${memberName}!</h2>
@@ -29,55 +33,57 @@ const sendTeamAddEmail = async (memberEmail, memberName, managerName) => {
         </div>
       `,
     });
-        console.log(`Team add email sent to ${memberEmail}`);
-}catch(error){
-    console.error(`Error sending team add email to ${memberEmail}:`, error);
-}
+    console.log(`Team add email sent to ${memberEmail}`);
+  } catch (error) {
+    console.error(`Error sending team add email:`, error.message);
+  }
 };
 
 // Task assign hone par
-
 const sendTaskAssignEmail = async (memberEmail, memberName, taskTitle, deadline, managerName) => {
-    try{
-        const deadlinStr = new Date(deadline).toLocaleDateString('en-IN',{
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-        });
-
-        await transporter.sendMail({
-            from: `'TaskPrio' <${process.env.Email_User}>`,
-            to: memberEmail,
-            subject: `New Task Assigned: ${taskTitle}`,
-            html: `
+  console.log("=== TASK ASSIGN EMAIL CALLED ===");
+  console.log("To:", memberEmail);
+  try {
+    const deadlineStr = new Date(deadline).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+    await transporter.sendMail({
+      from: `"TaskPrio" <${process.env.EMAIL_USER}>`,
+      to: memberEmail,
+      subject: `New Task Assigned: ${taskTitle}`,
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f0f1a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
           <h1 style="color: #a78bfa;">⚡ TaskPrio</h1>
-          <h2>New Task Assigned: ${taskTitle}</h2>
+          <h2>New Task Assigned!</h2>
           <p>Hello <strong>${memberName}</strong>,</p>
           <p>You have been assigned a new task by <strong style="color: #a78bfa;">${managerName}</strong>.</p>
-        <div style="background: #1e1e2e;border-left: 4px solid #7c3aed; padding: 16px; border-radius: 8px; margin: 16px 0;">
+          <div style="background: #1e1e2e; border-left: 4px solid #7c3aed; padding: 16px; border-radius: 8px; margin: 16px 0;">
             <h3 style="margin-top: 0;">${taskTitle}</h3>
-            <p style="margin: 0; color: #9ca3af;">📅 Deadline: <strong style ="color:#fbbf24;">${deadlinStr} </strong></p>
-        </div>
-        <a href="https://task-pro-ai.vercel.app/"
-              style="display: inline-block; background: #7c3aed; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">
+            <p style="margin: 0; color: #9ca3af;">📅 Deadline: <strong style="color:#fbbf24;">${deadlineStr}</strong></p>
+          </div>
+          <a href="https://task-pro-ai.vercel.app/" 
+             style="display: inline-block; background: #7c3aed; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">
             View Task
-            </a>
-            <p style="color: #6b7280; margin-top: 24px; font-size: 12px;">TaskPrio — AI Powered Task Management</p> 
-            </div>
-            `,
-        });
-        console.log(`Task assignment email sent to ${memberEmail}`);
-}catch(error){
-    console.error(`Error sending task assignment email to ${memberEmail}:`, error);
-}
+          </a>
+          <p style="color: #6b7280; margin-top: 24px; font-size: 12px;">TaskPrio — AI Powered Task Management</p>
+        </div>
+      `,
+    });
+    console.log(`Task assignment email sent to ${memberEmail}`);
+  } catch (error) {
+    console.error(`Error sending task assignment email:`, error.message);
+  }
 };
 
 // Deadline reminder — 1 din baaki
 const sendDeadlineReminderEmail = async (memberEmail, memberName, taskTitle, deadline) => {
   try {
-    const deadlineStr = new Date(deadline).toLocaleDateString('en-IN', {
-      day: '2-digit', month: 'long', year: 'numeric'
+    const deadlineStr = new Date(deadline).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
     await transporter.sendMail({
       from: `"TaskPrio" <${process.env.EMAIL_USER}>`,
@@ -104,7 +110,7 @@ const sendDeadlineReminderEmail = async (memberEmail, memberName, taskTitle, dea
     });
     console.log(`Deadline reminder sent to ${memberEmail}`);
   } catch (err) {
-    console.error('Email error:', err.message);
+    console.error("Deadline email error:", err.message);
   }
 };
 

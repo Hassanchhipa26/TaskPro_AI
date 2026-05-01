@@ -9,6 +9,11 @@ require('dotenv').config();
 
 const app = express();
 
+console.log('Server starting...');
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
+console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+
+
 app.use(helmet());
 app.use(compression());
 

@@ -14,6 +14,7 @@ app.use(compression());
 
 // CORS
 app.use(cors());
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '10kb' })); // body size limit
 
 // Rate Limiting — ek IP se zyada requests block

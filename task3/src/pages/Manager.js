@@ -35,11 +35,11 @@ export default function Manager() {
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState('');
 
-  const headers = { Authorization: `Bearer ${token}` };
+  const getHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('tp_token')}` });
 
   const fetchDashboard = async () => {
     try {
-      const { data: d } = await API.get('/api/dashboard', { headers });
+      const { data: d } = await API.get('/api/dashboard', { headers: getHeaders() });
       setData(d);
       setAllTasks(d.tasks || []);
     } catch (e) { console.error(e); }
@@ -47,7 +47,7 @@ export default function Manager() {
 
   const fetchMyTeam = async () => {
   try {
-    const { data } = await API.get('/api/team', { headers });
+    const { data } = await API.get('/api/team', { headers: getHeaders() });
     setUsers(data.members || []);
   } catch (e) { console.error(e); }
 };
@@ -58,7 +58,7 @@ export default function Manager() {
     if (!form.title || !form.deadline || !form.assignedTo) return;
     setLoading(true);
     try {
-      await API.post('/api/tasks', form, { headers });
+      await API.post('/api/tasks', form, { headers: getHeaders() });
       setShowModal(false);
       setForm({ title: '', description: '', deadline: '', effort: 5, impact: 5, assignedTo: '' });
       fetchDashboard();
@@ -71,7 +71,7 @@ export default function Manager() {
   setSearchResult(null);
   if (!searchEmail) return;
   try {
-    const { data } = await API.get(`/api/team/search?email=${searchEmail}`, { headers });
+    const { data } = await API.get(`/api/team/search?email=${searchEmail}`, { headers: getHeaders() });
     setSearchResult(data);
   } catch (e) {
     setSearchError('Member not found — make sure they registered as Team Member');
@@ -80,7 +80,7 @@ export default function Manager() {
 
 const addToTeam = async (memberId) => {
   try {
-    const { data } = await API.post('/api/team/add', { memberId }, { headers });
+    const { data } = await API.post('/api/team/add', { memberId }, { headers: getHeaders() });
     setUsers(data.members || []);
     setSearchResult(null);
     setSearchEmail('');
@@ -93,8 +93,8 @@ const addToTeam = async (memberId) => {
 
 const removeFromTeam = async (memberId) => {
   try {
-    await API.delete(`/api/team/remove/${memberId}`, { headers });
-    const { data } = await API.get('/api/team', { headers });
+    await API.delete(`/api/team/remove/${memberId}`, { headers: getHeaders() });
+    const { data } = await API.get('/api/team', { headers: getHeaders() });
     setUsers(data.members || []);
     fetchDashboard();
   } catch (e) { console.error(e); }

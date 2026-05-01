@@ -6,6 +6,8 @@ const transporter = nodeMailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  debug: true,  // ← ye add karo
+  logger: true 
 });
 
 // Team mein add hone par

@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const Task = require('../models/Task');
 const Alert = require('../models/Alert');
 const { calculatePriorityScore, getScoreLabel } = require('../utils/priorityEngine');
+const { sendTaskAssignEmail } = require('../utils/emailService');
 
 // Create task
 router.post('/', auth, async (req, res) => {
@@ -11,6 +12,12 @@ router.post('/', auth, async (req, res) => {
     const taskData = { title, description, deadline, effort, impact, assignedTo, createdBy: req.user.id };
     const score = calculatePriorityScore(taskData);
     const task = await Task.create({ ...taskData, priorityScore: score });
+    // Send email notification to the assigned member
+    const member = await User.findById(assignedTo, 'name email');
+   const manager = await User.findById(req.user.id, 'name');
+   if (member) {
+   await sendTaskAssignEmail(member.email, member.name, title, deadline, manager.name);
+  }
 
     // Alert if deadline within 2 days
     const daysLeft = (new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24);

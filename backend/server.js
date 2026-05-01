@@ -74,3 +74,32 @@ cron.schedule('0 * * * *', async () => {
     }
   }
 });
+
+// Deadline reminder — roz subah 9 baje check karo
+cron.schedule('0 9 * * *', async () => {
+  const { sendDeadlineReminderEmail } = require('./utils/emailService');
+  const Task = require('./models/Task');
+  const User = require('./models/User');
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const start = new Date(tomorrow.setHours(0, 0, 0, 0));
+  const end = new Date(tomorrow.setHours(23, 59, 59, 999));
+
+  const tasks = await Task.find({
+    deadline: { $gte: start, $lte: end },
+    status: { $ne: 'done' }
+  }).populate('assignedTo', 'name email');
+
+  for (const task of tasks) {
+    if (task.assignedTo?.email) {
+      await sendDeadlineReminderEmail(
+        task.assignedTo.email,
+        task.assignedTo.name,
+        task.title,
+        task.deadline
+      );
+    }
+  }
+  console.log(`Deadline reminders sent for ${tasks.length} tasks`);
+});

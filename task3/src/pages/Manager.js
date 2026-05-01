@@ -24,7 +24,7 @@ const s = {
 };
 
 export default function Manager() {
-  const { token } = useContext(AuthContext);
+  useContext(AuthContext);
   const [data, setData] = useState({ workload: [], summary: {} });
   const [allTasks, setAllTasks] = useState([]);
   const [users, setUsers] = useState([]);

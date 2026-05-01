@@ -37,7 +37,7 @@ const sendTeamAddEmail = async (memberEmail, memberName, managerName) => {
 
 // Task assign hone par
 
-const sendTaskAssignmentEmail = async (memberEmail, memberName, taskTitle, deadline, managerName) => {
+const sendTaskAssignEmail = async (memberEmail, memberName, taskTitle, deadline, managerName) => {
     try{
         const deadlinStr = new Date(deadline).toLocaleDateString('en-IN',{
             day: '2-digit',

@@ -15,7 +15,21 @@ export default function Login() {
   const { login } = useContext(AuthContext);
 
   const handle = async () => {
-    setError("");
+    // frontend validation
+    if(!form.email || !form.password){
+      return setError("Email and password are required");
+    }
+    if(!form.email.includes("@")){
+      return setError("Please enter a valid email address");
+    }
+    if(form.password.length < 6){
+      return setError("Password must be at least 6 characters");
+    }
+    if(isRegister && !form.name){
+      return setError("Name is required for registration");
+    }
+
+    // setError("");
     setLoading(true);
     try {
       const url = isRegister ? "/api/auth/register" : "/api/auth/login";

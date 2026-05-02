@@ -34,17 +34,30 @@ router.post('/', auth, async (req, res) => {
 // Get tasks for logged-in user (sorted by priority score desc)
 router.get('/my', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user.id, status: { $ne: 'done' } })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const total = await Task.countDocuments({
+      assignedTo: req.user.id,
+      status: { $ne: 'done' }
+    });
+
+    const tasks = await Task.find({
+      assignedTo: req.user.id,
+      status: { $ne: 'done' }
+    })
       .sort({ priorityScore: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate('createdBy', 'name role');
 
-    // Recalculate live scores (dynamic)
     const updated = tasks.map(t => {
       const score = calculatePriorityScore(t);
       return { ...t.toObject(), priorityScore: score, scoreLabel: getScoreLabel(score) };
     });
 
-    res.json(updated);
+    res.json({ tasks: updated, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

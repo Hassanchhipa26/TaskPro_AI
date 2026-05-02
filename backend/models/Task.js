@@ -13,4 +13,10 @@ const taskSchema = new mongoose.Schema({
   completedAt: Date
 }, { timestamps: true });
 
+// Indexing for faster queries
+taskSchema.index({ assignedTo: 1, status: 1 });
+taskSchema.index({ createdBy: 1 });
+taskSchema.index({ priorityScore: -1 });
+taskSchema.index({ deadline: 1 });
+
 module.exports = mongoose.model('Task', taskSchema);

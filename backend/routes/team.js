@@ -2,6 +2,7 @@ const router = require('express').Router();
 const auth = require('../middleware/auth');
 const Team = require('../models/Team');
 const User = require('../models/User');
+const { sendTeamAddEmail } = require('../utils/emailService');
 
 // Get my team
 router.get('/', auth, async (req, res) => {
@@ -47,6 +48,11 @@ router.post('/add', auth, async (req, res) => {
     }
     team.members.push(memberId);
     await team.save();
+
+    // Email bhejo
+    const manager = await User.findById(req.user.id, 'name');
+    await sendTeamAddEmail(member.email, member.name, manager.name);
+
     const updated = await Team.findOne({ manager: req.user.id })
       .populate('members', 'name email role');
     res.json(updated);

@@ -18,7 +18,10 @@ app.use(helmet());
 app.use(compression());
 
 // CORS
-app.use(cors());
+app.use(cors({
+  origin: ['https://task-pro-ai.vercel.app', 'http://localhost:3000'],
+  credentials: true
+}));
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '10kb' })); // body size limit
 
